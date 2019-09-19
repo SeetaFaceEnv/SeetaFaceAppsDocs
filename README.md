@@ -8,12 +8,12 @@
 **系统功能简介:**
 - 系统信息
   - 系统配置
-    调整系统级相关参数配置
+    调整系统级相关参数配置·
 - 人员信息
   - 字段管理
-  灵活配置人员组态属性信息
+  灵活配置人员属性信息
   - 人员管理
-  管理人员、照片等信息，并控制其绑定至相应设备、设备组中
+  管理人员、照片等信息，并控制人员可识别的设备、设备组
 - 设备信息
   - 设备管理
     自动发现未知设备以供添加，管理所有已知设备及相关参数信息
@@ -22,27 +22,27 @@
   - 流媒体管理
     管理外部rtsp流及相关参数设置
   - 时间模板管理
-    统一管理设备通行时间模板
+    统一管理设备允许通行时间的模板
 - 记录信息
   - 通行记录
-    查看、导出通行记录
+    查看、导出、统计（每日最早及最晚）通行记录
   - 日志记录
-  查看、导出日志记录 
+  查看日志记录 
 
 **系统展示:**
 <center><img width=60% src= "./doc/image/login.jpg"/></center>
-<center>登录页面</center>
+<center>图 0-1 登录页面</center>
 <center><img width=60% src= "./doc/image/manage.jpg"/></center>
-<center>管理页面</center>
+<center>图 0-2 管理页面</center>
 <center><img width=40% src= "./doc/image/Facerecognition.jpg"/></center>
-<center>识别展示</center>
+<center>图 0-3 识别展示</center>
 
 ##  1、系统部署架构图
 
 <center><img src="doc/image/architecture.jpg"/></center>
 <center>图 1-1 系统部署架构图</center>
 
-社区版服务不直接操作硬件设备, 操作设备参数将直接调用中科视拓设备硬件平台接口操作硬件设备。
+中科视拓智慧园区社区版服务不会直接操作硬件设备，而是通过调用中科视拓设备硬件平台接口来操作硬件设备
 
 [中科视拓硬件设备平台](https://github.com/SeetaFaceEnv/SeetaDevice)
 
