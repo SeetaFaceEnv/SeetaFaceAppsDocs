@@ -92,6 +92,8 @@ $ chown www-data:www-data /app/php/files
 $ php /app/php/app/bootstrap_cli.php main CreateAdmin
 ```
 
+创建的初始账户，用户名：admin，密码：123456
+
 ### 5.其他
 
 其他 docker-compose 命令
