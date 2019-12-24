@@ -2,84 +2,158 @@
 
 ## 注意事项
 
-此部署文档的使用系统为CentOS7
+此部署文档的使用系统为：CentOS7
 
-
+此部署文档包含两种部署方式：Dcoker部署 、 物理部署
 
 ## 方式一、Docker部署
 
-**Docker版本**：v18.09.2
+### 1.基础部署
 
-**Docker-compose版本**: v1.24.1
+**安装Docker：**
 
-### 1.部署文件放置
+**版本号**：v18.06.1
 
-递归创建项目目录
+>  若已安装，请忽略此步骤
 
 ```shell
-$ mkdir -p /home/www-root/
+$ sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+$ sudo yum-config-manager --add-repo http://mirrors.aliyun.com/docker-ce/linux/centos/docker-ce.repo
+$ sudo yum install docker-ce-18.06.1.ce-3.el7 containerd.io
 ```
-将后端 `php` 代码文件中 `docker_deployment` 文件夹放置到 `/home/www-root/` 目录下
+
+
+
+**安装Docker-compose：**
+
+**版本号**: v1.24.1
+
+> 若已安装，请忽略此步骤
+
+```shell
+$ sudo curl -L "https://github.com/docker/compose/releases/download/1.24.1/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+$ sudo chmod +x /usr/local/bin/docker-compose
+$ sudo ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose
+```
+
+
+
+**部署硬件设备平台：**
+
+> 若已部署完成，请忽略此步骤
+
+```shell
+# 下载硬件设备平台部署文件
+$ git clone https://github.com/SeetaFaceEnv/SeetaDevice.git
+
+# 进入项目目录
+$ cd SeetaDevice
+```
+
+修改`.env`文件内路径和端口，`resource/config/config_release.yaml`文件内地址、端口和key（mongo的addr端口需和`.env`文件内的mongo端口一致，mqtt的ip需为本机IP地址）
+
+运行程序
+
+```shell
+$ docker-compose up -d
+```
+
+详细步骤请参考：[中科视拓硬件设备平台](https://github.com/SeetaFaceEnv/SeetaDevice)  中的3.系统部署
+
+
+
+### 2.放置部署文件
+
+进入用户家目录
+
+```shell
+$ cd ~
+```
+
+创建并进入项目目录
+
+```shell
+$ mkdir seeta/
+$ cd seeta
+```
+将后端 `php` 代码文件中 `docker_deployment` 文件夹放置到 `seeta/` 目录下
 
 ```shell
 # 重命名项目文件
 $ mv docker_deployment SeetaAiBuildingCommunity
 ```
 
-### 2.配置文件修改
 
-修改前端配置文件config.js
+
+### 3.修改配置文件
 
 ```shell
-$ vim /home/www-root/SeetaAiBuildingCommunity/config.js
+# 进入项目文件
+$ cd SeetaAiBuildingCommunity
 
-#将这一行中的 '192.168.0.8' 替换成当前服务器的ip
-baseURL: 'http://192.168.0.18:9191/'
+# 增加配置文件的权限
+$ sudo chmod 775 config.js
+$ sudo chmod 775 config.php
 ```
-修改后端配置文件config.php（若部署了设备管理平台，可直接连接设备管理平台docker的mongo、mqtt容器）
+
+**注**：在配置文件中，有几处涉及IP地址配置更换。分类为`docker0_ip`、`server_ip`
+
+**docker0_ip** :  Docker容器之间通讯的IP。可用 ifconfig 命令查看，通常以172开头。例：图中1
+
+**server_ip**：服务器的内网IP 或公网IP。例：下图中2
+
+![](image/get_ip.png)
+
+
+
+修改前端配置文件`config.js`
 
 ```shell
-$ vim /home/www-root/SeetaAiBuildingCommunity/config.php
+$ vim config.js
 
-#此为设备管理平台的地址，请根据需要改成实际的地址。
-defined('SYSEND_SERVER') || define('SYSEND_SERVER',"http://192.168.0.7:7879/");
+# 以下为后端业务层的地址，请将'192.168.0.8' 替换成 上文提到的 server_ip
+baseURL: 'http://192.168.0.8:9191/'
+```
 
-# 以下为mongodb的信息请按照实际情况将username、password改成Mongo实际的账号密码
-# db_seeta_ai_building为当前使用数据库名
+
+修改后端配置文件`config.php`
+
+```shell
+$ vim config.php
+
+# 以下为硬件设备平台的地址，请将'127.0.0.1'改成 上文提到的 docker0_ip
+defined('SYSEND_SERVER') || define('SYSEND_SERVER',"http://172.17.0.1:7878/");
+
+# 以下为mongodb的连接信息
+# MongoDB的账号、密码当前默认为admin、makenosense(可查看硬件设备平台中 .env文件的mongo_user以及     mongo_password的配置)
+# 请将 '127.0.0.1' 改成 上文提到的docker0_ip
 'database' => [
-        'adapter' => 'mongodb',
-        'url' => 'mongodb://<username>:<password>@127.0.0.1:27017/db_seeta_ai_building',
-        'dbname' => 'db_seeta_ai_building',
-        'charset' => 'utf8',
-    ],
+	'url' => 'mongodb://admin:makenosense@172.17.0.1:27018/admin',
+	...
+],
 
-#将redis信息改成实际服务器信息，若设置了redis的密码，则填写相应的redis密码
+# 以下为redis的连接信息
+# 请将 '127.0.0.1' 改成 上文提到的 docker0_ip
 'redis' => [
-        'prefix' => 'tcp://',
-        'host' => '127.0.0.1',
-        'port' => 6379,
-        'password' => '',   //local server
-    ],
+    'host' => '127.0.0.1',
+   	...
+],
 
-#本系统中以emq作为消息中间键，请将端口、账号和密码改成实际配置信息
+# 以下为emq消息中间键的连接信息
+# 请将 '192.168.0.8' 改成 上文提到的 server_ip
 'mqtt' => [
-        'host' => '127.0.0.1',
-        'port' => 1883,
-        'webPort' => 8083,
-        'passwd' => '',
-        'user' => '',
-    ],
+    'host' => '192.168.0.8',
+    ...
+],
 ```
 
-### 3.启动项目
+### 5.启动项目
 
 ```shell
-# 进入docker部署文件目录
-$ cd /home/www-root/SeetaAiBuildingCommunity
 $ docker-compose up -d		 #-d参数：后台运行
 ```
 
-### 4.创建管理员账号
+### 6.创建管理员账号
 
 更改资源文件夹的所属用户组，并初始化管理员账号
 
@@ -94,7 +168,7 @@ $ php /app/php/app/bootstrap_cli.php main CreateAdmin
 
 创建的初始账户，用户名：admin，密码：123456
 
-### 5.其他
+### 7.其他
 
 其他 docker-compose 命令
 
@@ -116,26 +190,31 @@ $ docker-compose stop
 ### 1.代码放置
 
 ``` bash
-#递归创建项目目录
-$ mkdir -p /home/www-root/SeetaAiBuildingCommunity/
+#进入家目录
+#本文档的家目录以/home/www-root/为例
+#特别提醒：请将后文中/home/www-root/ 替换为 实际目录路径
+$ cd ~
+
+#创建并进入项目目录
+$ mkdir SeetaAiBuildingCommunity/
+$ cd SeetaAiBuildingCommunity/
 
 #将前端、后端、gateway的代码放到此目录下
-#将代码文件名重命名成相应的名字
+#将代码文件夹名重命名成相应的名字
 $ mv <前端代码文件夹名字> web 
 $ mv <后端代码文件夹名字> php
 
 #将文件的所属用户改为普通用户
-$ chown <OWNER>:<GROUP> -R web
+$ chown <OWNER>:<GROUP> -R 文件名
 
 示例：
 $ chown seeta:seeta -R web
 $ chown seeta:seeta -R php
-$ chown seeta:seeta -R gateway
 
 #修改前端配置文件
-$ vim /home/www-root/SeetaAiBuildingCommunity/web/config.js
-#将这一行中的 '192.168.0.16' 替换成当前服务器的ip
-baseURL: 'http://192.168.0.16:9090/'
+$ vim web/config.js
+#将这一行中的 '192.168.0.8' 替换成当前服务器的ip
+baseURL: 'http://192.168.0.8:9090/'
 ```
 
 
