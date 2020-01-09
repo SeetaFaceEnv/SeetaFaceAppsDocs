@@ -117,6 +117,12 @@ server_mode=release
 # 服务运行端口
 server_port=6969
 
+# seeta_device
+# 设备管理平台部署地址
+seeta_device_addr=http://192.168.0.7:7878
+# 本程序部署地址
+seeta_device_callback=http://192.168.0.18:6969
+
 # server dir
 # 日志目录
 server_dir_log=logs
