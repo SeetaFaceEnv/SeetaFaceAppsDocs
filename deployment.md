@@ -272,8 +272,7 @@ db.createUser({ user: "hzhs", pwd: "hzhs", roles: [{ role: "dbOwner", db: "db_se
 server:
   mode: debug #程序运行模式，支持test,release,debug
   port: 6969 #程序运行端口
-  gather_switch: close #数据采集开关
-  third_report: #第三方上报接口
+  third_report: #通行记录转发第三方接口
   sign: 4cc89aa9b9684076804b7974cc16caf1 #第三方注册签名
   log_cycle: 180 #日志保存时长
 mongo: #部署的mongodb信息
